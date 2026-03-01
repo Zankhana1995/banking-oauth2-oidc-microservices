@@ -33,6 +33,32 @@ User → Keycloak → API Gateway → Microservices
 
 ---
 
+## Architecture Overview
+
+                 +------------------+
+                 |     Keycloak     |
+                 |  (OIDC Provider) |
+                 +------------------+
+                           |
+                           v
+    Client ---> API Gateway ---> Account Service
+                           |
+                           v
+                Transaction Service
+
+---
+
+### Security Layers
+
+1. JWT validation at API Gateway
+2. JWT validation at each microservice (Zero Trust)
+3. Scope-based authorization
+4. Role-based authorization
+5. Ownership-based authorization (business-level)
+6. Client Credentials flow for service-to-service communication
+
+---
+
 ## Services
 
 - API Gateway
