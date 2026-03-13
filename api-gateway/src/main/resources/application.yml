@@ -1,0 +1,18 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: api-gateway
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/banking-realm
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
