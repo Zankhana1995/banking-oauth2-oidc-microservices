@@ -11,6 +11,20 @@ spring:
         jwt:
           issuer-uri: http://localhost:8080/realms/banking-realm
 
+  cloud:
+    gateway:
+      routes:
+
+        - id: account-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/accounts/**
+
+        - id: transaction-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/transactions/**
+
 management:
   endpoints:
     web:
