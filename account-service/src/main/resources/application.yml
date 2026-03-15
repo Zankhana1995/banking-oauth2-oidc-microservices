@@ -1,5 +1,18 @@
+server:
+  port: 8081
+
 spring:
   application:
     name: account-service
-server:
-  port: 8081
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/banking-realm
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

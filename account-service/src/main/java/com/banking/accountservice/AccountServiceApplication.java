@@ -1,4 +1,4 @@
-package com.banking.account_service;
+package com.banking.accountservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
