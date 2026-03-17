@@ -6,6 +6,7 @@ import com.banking.accountservice.mapper.AccountMapper;
 import com.banking.accountservice.repository.AccountRepository;
 import com.banking.accountservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
 
+    @Cacheable(value = "accounts", key = "#username")
     @Override
     public List<AccountResponse> getAccountsForUser(String username) {
 
@@ -25,6 +27,7 @@ public class AccountServiceImpl implements AccountService {
                 .toList();
     }
 
+    @Cacheable(value = "account", key = "#id")
     @Override
     public AccountResponse getAccount(Long id, String username) {
 
