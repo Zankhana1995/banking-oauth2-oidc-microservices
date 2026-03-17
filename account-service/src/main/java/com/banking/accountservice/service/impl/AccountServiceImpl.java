@@ -3,6 +3,8 @@ package com.banking.accountservice.service.impl;
 import com.banking.accountservice.domain.Account;
 import com.banking.accountservice.dto.AccountRequest;
 import com.banking.accountservice.dto.AccountResponse;
+import com.banking.accountservice.exception.AccessDeniedException;
+import com.banking.accountservice.exception.AccountNotFoundException;
 import com.banking.accountservice.mapper.AccountMapper;
 import com.banking.accountservice.repository.AccountRepository;
 import com.banking.accountservice.service.AccountService;
@@ -52,10 +54,10 @@ public class AccountServiceImpl implements AccountService {
     public AccountResponse getAccount(Long id, String username) {
 
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
         if (!account.getOwnerUsername().equals(username)) {
-            throw new RuntimeException("Access denied to this account");
+            throw new AccessDeniedException("Access denied to this account");
         }
 
         return AccountMapper.toDto(account);
@@ -82,7 +84,7 @@ public class AccountServiceImpl implements AccountService {
     public AccountResponse updateAccount(Long id, AccountRequest request) {
 
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
         account.setOwnerUsername(request.getOwnerUsername());
         account.setAccountNumber(request.getAccountNumber());
@@ -97,7 +99,7 @@ public class AccountServiceImpl implements AccountService {
     public void deleteAccount(Long id) {
 
         if (!accountRepository.existsById(id)) {
-            throw new RuntimeException("Account not found");
+            throw new AccountNotFoundException("Account not found");
         }
 
         accountRepository.deleteById(id);
