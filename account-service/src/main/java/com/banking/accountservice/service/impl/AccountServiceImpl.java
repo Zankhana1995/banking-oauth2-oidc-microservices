@@ -39,6 +39,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private boolean isAdmin() {
+        System.out.println(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
         return SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getAuthorities()
