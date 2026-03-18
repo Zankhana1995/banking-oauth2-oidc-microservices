@@ -41,6 +41,21 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
+    @ExceptionHandler(InsufficientBalanceException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ErrorResponse handleInsufficientBalance(
+            InsufficientBalanceException ex,
+            HttpServletRequest request) {
+
+        return ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.UNPROCESSABLE_ENTITY.value())
+                .error("UNPROCESSABLE_ENTITY")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleGenericException(

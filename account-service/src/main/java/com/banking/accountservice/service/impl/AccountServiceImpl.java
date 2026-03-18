@@ -5,6 +5,7 @@ import com.banking.accountservice.dto.AccountRequest;
 import com.banking.accountservice.dto.AccountResponse;
 import com.banking.accountservice.exception.AccessDeniedException;
 import com.banking.accountservice.exception.AccountNotFoundException;
+import com.banking.accountservice.exception.InsufficientBalanceException;
 import com.banking.accountservice.mapper.AccountMapper;
 import com.banking.accountservice.repository.AccountRepository;
 import com.banking.accountservice.security.AuthorizationService;
@@ -117,7 +118,7 @@ public class AccountServiceImpl implements AccountService {
         }
 
         if (account.getBalance().compareTo(amount) < 0) {
-            throw new RuntimeException("Insufficient balance");
+            throw new InsufficientBalanceException("Insufficient balance");
         }
 
         account.setBalance(account.getBalance().subtract(amount));
