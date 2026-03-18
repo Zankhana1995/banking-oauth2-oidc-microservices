@@ -7,6 +7,7 @@ import com.banking.accountservice.exception.AccessDeniedException;
 import com.banking.accountservice.exception.AccountNotFoundException;
 import com.banking.accountservice.mapper.AccountMapper;
 import com.banking.accountservice.repository.AccountRepository;
+import com.banking.accountservice.security.AuthorizationService;
 import com.banking.accountservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -21,32 +22,23 @@ import java.util.List;
 public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
+    private final AuthorizationService authorizationService;
 
     @Cacheable(value = "accounts", key = "#username")
     @Override
     public List<AccountResponse> getAccountsForUser(String username) {
-        // check if ADMIN
-        if (isAdmin()) {
+
+        if (authorizationService.canViewAllAccounts()) {
             return accountRepository.findAll()
                     .stream()
                     .map(AccountMapper::toDto)
                     .toList();
         }
 
-        // USER
         return accountRepository.findByOwnerUsername(username)
                 .stream()
-                .map(account -> AccountMapper.toDto(account))
+                .map(AccountMapper::toDto)
                 .toList();
-    }
-
-    private boolean isAdmin() {
-        System.out.println(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
-        return SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getAuthorities()
-                .stream()
-                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
     }
 
     @Cacheable(value = "account", key = "#id")
@@ -56,7 +48,8 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
-        if (!account.getOwnerUsername().equals(username)) {
+        // centralized auth
+        if (!authorizationService.canAccessAccount(account)) {
             throw new AccessDeniedException("Access denied to this account");
         }
 
@@ -86,6 +79,10 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new AccountNotFoundException("Account not found"));
 
+        if (!authorizationService.canAccessAccount(account)) {
+            throw new AccessDeniedException("Access denied");
+        }
+
         account.setOwnerUsername(request.getOwnerUsername());
         account.setAccountNumber(request.getAccountNumber());
         account.setBalance(request.getBalance());
@@ -98,10 +95,20 @@ public class AccountServiceImpl implements AccountService {
     @CacheEvict(value = {"accounts", "account"}, allEntries = true)
     public void deleteAccount(Long id) {
 
-        if (!accountRepository.existsById(id)) {
-            throw new AccountNotFoundException("Account not found");
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException("Account not found"));
+
+        if (!authorizationService.canAccessAccount(account)) {
+            throw new AccessDeniedException("Access denied");
         }
 
-        accountRepository.deleteById(id);
+        accountRepository.delete(account);
     }
+
+    private String getCurrentUsername() {
+        return SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+    }
+
 }
