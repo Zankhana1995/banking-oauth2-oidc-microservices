@@ -12,9 +12,9 @@ import com.banking.accountservice.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -105,10 +105,40 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.delete(account);
     }
 
-    private String getCurrentUsername() {
-        return SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName();
+    @Override
+    @CacheEvict(value = {"accounts", "account"}, allEntries = true)
+    public AccountResponse debit(Long id, BigDecimal amount) {
+
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException("Account not found"));
+
+        if (!authorizationService.canAccessAccount(account)) {
+            throw new AccessDeniedException("Access denied");
+        }
+
+        if (account.getBalance().compareTo(amount) < 0) {
+            throw new RuntimeException("Insufficient balance");
+        }
+
+        account.setBalance(account.getBalance().subtract(amount));
+
+        return AccountMapper.toDto(accountRepository.save(account));
+    }
+
+    @Override
+    @CacheEvict(value = {"accounts", "account"}, allEntries = true)
+    public AccountResponse credit(Long id, BigDecimal amount) {
+
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new AccountNotFoundException("Account not found"));
+
+        if (!authorizationService.canAccessAccount(account)) {
+            throw new AccessDeniedException("Access denied");
+        }
+
+        account.setBalance(account.getBalance().add(amount));
+
+        return AccountMapper.toDto(accountRepository.save(account));
     }
 
 }

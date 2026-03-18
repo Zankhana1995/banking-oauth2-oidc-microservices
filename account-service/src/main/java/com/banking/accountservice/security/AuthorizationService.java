@@ -45,6 +45,14 @@ public class AuthorizationService {
     }
 
     private String getUsername() {
+        Object principal = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+
+        if (principal instanceof Jwt jwt) {
+            return jwt.getClaimAsString("preferred_username");
+        }
+
         return SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();

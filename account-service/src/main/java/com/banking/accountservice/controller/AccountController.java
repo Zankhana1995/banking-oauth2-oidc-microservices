@@ -10,6 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -56,5 +57,17 @@ public class AccountController {
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteAccount(@PathVariable Long id) {
         accountService.deleteAccount(id);
+    }
+
+    @PatchMapping("/{id}/debit")
+    public AccountResponse debit(@PathVariable Long id,
+                                 @RequestParam BigDecimal amount) {
+        return accountService.debit(id, amount);
+    }
+
+    @PatchMapping("/{id}/credit")
+    public AccountResponse credit(@PathVariable Long id,
+                                  @RequestParam BigDecimal amount) {
+        return accountService.credit(id, amount);
     }
 }
