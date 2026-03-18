@@ -14,12 +14,12 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void transfer(TransferRequest request) {
-        // TEMP: hardcoded token (next step we fix this)
-        String token = "PASTE_TOKEN_HERE";
 
-        accountClient.validateAccount(request.getFromAccountId(), token);
-        accountClient.validateAccount(request.getToAccountId(), token);
+        // Step 1: Validate both accounts via account-service
+        accountClient.validateAccount(request.getFromAccountId());
+        accountClient.validateAccount(request.getToAccountId());
 
-        // next: debit + credit logic
+        // Step 2: (Next step) debit + credit logic
+
     }
 }

@@ -17,6 +17,10 @@ spring:
     show-sql: true
     defer-datasource-initialization: true
 
+  h2:
+    console:
+      enabled: true
+
   security:
     oauth2:
       resourceserver:
@@ -28,3 +32,13 @@ management:
     web:
       exposure:
         include: health,info
+
+app:
+  keycloak:
+    token-url: http://localhost:8080/realms/banking-realm/protocol/openid-connect/token
+    client-id: transaction-client
+    client-secret: 41G2KIDPqHeu1Ae9vETsZfuyelSH5Ii8
+
+logging:
+  level:
+    org.springframework.security: DEBUG

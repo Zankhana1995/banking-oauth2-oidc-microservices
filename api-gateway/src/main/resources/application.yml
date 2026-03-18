@@ -11,6 +11,18 @@ spring:
         jwt:
           issuer-uri: http://localhost:8080/realms/banking-realm
 
+      client:
+        registration:
+          transaction-client:
+            provider: keycloak
+            client-id: transaction-client
+            client-secret: 41G2KIDPqHeu1Ae9vETsZfuyelSH5Ii8
+            authorization-grant-type: client_credentials
+
+        provider:
+          keycloak:
+            token-uri: http://localhost:8080/realms/banking-realm/protocol/openid-connect/token
+
   cloud:
     gateway:
       routes:
