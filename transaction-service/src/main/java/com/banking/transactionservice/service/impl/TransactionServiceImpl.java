@@ -6,18 +6,27 @@ import com.banking.transactionservice.dto.AccountResponse;
 import com.banking.transactionservice.repository.TransactionRepository;
 import com.banking.transactionservice.service.TransactionService;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
-@RequiredArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
 
     private final AccountClient accountClient;
     private final TransactionRepository transactionRepository;
+    private final Counter successCounter;
+    private final Counter failureCounter;
+
+    public TransactionServiceImpl(AccountClient accountClient, TransactionRepository transactionRepository, MeterRegistry meterRegistry) {
+        this.accountClient = accountClient;
+        this.transactionRepository = transactionRepository;
+        this.successCounter = meterRegistry.counter("transactions.success");
+        this.failureCounter = meterRegistry.counter("transactions.failure");
+    }
 
     @Override
     @Transactional
@@ -38,6 +47,8 @@ public class TransactionServiceImpl implements TransactionService {
 
             saveTransaction(fromId, toId, amount, "SUCCESS");
 
+            successCounter.increment();
+
         } catch (Exception ex) {
 
             if (debitSuccess) {
@@ -45,7 +56,7 @@ public class TransactionServiceImpl implements TransactionService {
             }
 
             saveTransaction(fromId, toId, amount, "FAILED");
-
+            failureCounter.increment();
             throw new RuntimeException("Transfer failed", ex);
         }
     }
