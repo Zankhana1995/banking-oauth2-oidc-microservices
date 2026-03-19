@@ -1,8 +1,9 @@
 package com.banking.transactionservice.service;
 
-import com.banking.transactionservice.dto.TransferRequest;
+import java.math.BigDecimal;
 
 public interface TransactionService {
 
-    void transfer(TransferRequest request);
+    void transfer(Long fromId, Long toId, BigDecimal amount, String username);
+
 }
