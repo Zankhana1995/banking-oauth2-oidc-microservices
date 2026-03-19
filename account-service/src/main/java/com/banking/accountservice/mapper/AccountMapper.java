@@ -10,7 +10,8 @@ public class AccountMapper {
                 .id(account.getId())
                 .accountNumber(account.getAccountNumber())
                 .balance(account.getBalance())
-                .accountType(account.getAccountType())
+                .accountType(String.valueOf(account.getAccountType()))
+                .ownerUsername(account.getOwnerUsername())
                 .build();
     }
 }
