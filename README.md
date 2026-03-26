@@ -15,7 +15,7 @@ This project demonstrates:
 
 - OAuth2 + OIDC authentication using Keycloak
 - JWT validation at API Gateway and microservices (Zero Trust)
-- Role-based, Scope-based, and Ownership-based authorization
+- Role-based and Ownership-based authorization
 - Client Credentials flow for secure service-to-service communication
 - Independent Spring Boot services in a monorepo structure
 - H2 database with seeded test data
@@ -35,16 +35,30 @@ User → Keycloak → API Gateway → Microservices
 
 ## Architecture Overview
 
-                 +------------------+
-                 |     Keycloak     |
-                 |  (OIDC Provider) |
-                 +------------------+
-                           |
-                           v
-    Client ---> API Gateway ---> Account Service
-                           |
-                           v
-                Transaction Service
+                        ┌────────────────────┐
+                        │     Keycloak       │
+                        │ (Auth Server)      │
+                        └─────────┬──────────┘
+                                  │
+                                  │ JWT Token
+                                  │
+    [ Client ] ───────▶ [ API Gateway ] ───────────────▶ [ Account Service ]
+                            │                                ▲
+                            │                                │
+                            │                                │
+                            │──────────────▶ [ Transaction Service ]
+                                                │
+                                                │ (service-to-service call)
+                                                ▼
+                                        [ Account Service ]
+
+---------------------------------------------------------------
+
+Monitoring:
+
+        [ Account Service ] ─┐
+        [ Transaction Service ] ───▶ [ Prometheus ] ───▶ [ Grafana ]
+        [ API Gateway ] ─────┘
 
 ---
 
@@ -52,10 +66,9 @@ User → Keycloak → API Gateway → Microservices
 
 1. JWT validation at API Gateway
 2. JWT validation at each microservice (Zero Trust)
-3. Scope-based authorization
-4. Role-based authorization
-5. Ownership-based authorization (business-level)
-6. Client Credentials flow for service-to-service communication
+3. Role-based authorization
+4. Ownership-based authorization (business-level)
+5. Client Credentials flow for service-to-service communication
 
 ---
 
@@ -64,7 +77,6 @@ User → Keycloak → API Gateway → Microservices
 - API Gateway
 - Account Service
 - Transaction Service
-- Common Library
 
 Detailed documentation available under `/docs`.
 
